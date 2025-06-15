@@ -1,3 +1,4 @@
 /node_modules
 .env
-phase1.txt
+st.txt
+/src/generated/prisma
