@@ -1,10 +1,19 @@
+import "express-async-errors"
+
 import dotenv from "dotenv";
 
 import express from "express";
 import cors from "cors";
 
-const PORT = process.env.PORT || 5000;
+
+import authRouter from "../src/routes/authRoute.js"
+
+import { ErrorHandler } from "./middleware/errorHandler.js";
+import notFound from "./middleware/notFound.js";
+
 dotenv.config();
+const PORT = process.env.PORT || 5000;
+
 
 const app = express();
 
@@ -14,6 +23,13 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.status(200).send("hello world");
 });
+
+app.use("/api/v1/auth", authRouter);
+
+
+app.use(notFound)
+app.use(ErrorHandler)
+
 
 const start = () => {
   app.listen(PORT, () => {

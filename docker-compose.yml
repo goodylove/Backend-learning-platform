@@ -1,12 +1,12 @@
-version: "3.8"
+
 services:
   db:
     image: postgres:15
-    container_name: online_learning_db
+    container_name: backend_learning_platform_db
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: online_learning
+      POSTGRES_DB: backend_learning_platform
     ports:
       - "5432:5432"
     volumes:
