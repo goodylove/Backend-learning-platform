@@ -1,5 +1,3 @@
-
-
 ---
 
 
@@ -44,7 +42,7 @@ A backend API for an online learning platform built with **Node.js**, **Express*
 https://github.com/goodylove/Backend-learning-platform.git
 cd Backend-learning-platform
 npm install
-````
+```
 
 ### Set Up Environment
 
@@ -88,10 +86,10 @@ Uses Swagger UI for interactive RESTful API documentation.
 
 This project is ready to be deployed using:
 
-* Docker & Docker Compose
-* Nginx (as a reverse proxy)
-* AWS EC2 / ECS / Lightsail
-* GitHub Actions (CI/CD)
+- Docker & Docker Compose
+- Nginx (as a reverse proxy)
+- AWS EC2 / ECS / Lightsail
+- GitHub Actions (CI/CD)
 
 ---
 
@@ -110,5 +108,3 @@ prisma/
 .env
 README.md
 ```
-
-

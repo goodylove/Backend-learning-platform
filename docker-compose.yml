@@ -1,4 +1,3 @@
-
 services:
   db:
     image: postgres:15
@@ -8,7 +7,7 @@ services:
       POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: backend_learning_platform
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
 
