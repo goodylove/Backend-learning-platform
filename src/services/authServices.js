@@ -24,7 +24,12 @@ export const registerUser = async ({ name, email, password }) => {
         password:hashPassword
     })
 
-    const {password: _, ...safeUser} = newUser
+    {/*const {password: _, ...safeUser} = newUser*/}
+    const safeUser ={
+        name:newUser.name,
+        email:newUser.email,
+        
+    }
 
     return safeUser
 
