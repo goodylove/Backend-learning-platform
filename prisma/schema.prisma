@@ -20,5 +20,8 @@ model User {
   email    String  @unique
   password String
   role     String  @default("student")
+  verified  Boolean  @default(false)
+  resetPasswordToken String? 
+  verificationToken String?   
   createdAt DateTime @default(now())
 }

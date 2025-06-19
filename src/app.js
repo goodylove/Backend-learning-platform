@@ -6,20 +6,34 @@ import express from 'express';
 import cors from 'cors';
 
 import swaggerUi from 'swagger-ui-express';
-import YAML from 'yamljs';
+import rateLimit from 'express-rate-limit';
+
 
 import authRouter from './routes/authRoute.js';
 
 import { ErrorHandler } from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
+import swaggerSpec from '../docs/swaggerSpec.js';
 
 dotenv.config();
 const PORT = process.env.PORT || 5001;
 
 export const app = express();
 
-const swaggerDocument = YAML.load('./docs/swagger.yaml');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+export const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 login requests per window
+  message: {
+    status: 429,
+    error: 'Too many login attempts. Try again later.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 app.use(cors());
 app.use(express.json());
