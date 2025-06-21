@@ -14,14 +14,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  student
+  instructor
+  admin
+}
+
+
 model User {
   id       String  @id @default(uuid())
   name     String
   email    String  @unique
   password String
-  role     String  @default("student")
+  role     Role   @default(student) 
   verified  Boolean  @default(false)
+  courses Course[]
   resetPasswordToken String? 
   verificationToken String?   
   createdAt DateTime @default(now())
+}
+
+model Course {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  instructor  User     @relation(fields: [instructorId], references: [id])
+  instructorId String
+  createdAt   DateTime @default(now())
 }

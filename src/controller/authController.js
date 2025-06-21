@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { BadRequestError } from '../errors/customErrors.js';
+import { BadRequestError, unAuthorizedError } from '../errors/customErrors.js';
 import { loginUser, registerUser, resetPasswords } from '../services/authServices.js';
 import { createJwt } from '../utils/token.js';
 import { forgottenUserPassword, verifyUserToken } from '../models/userModel.js';
@@ -10,10 +10,22 @@ import {
 } from '../mailtrap/emailjs.js';
 
 export async function register(req, res) {
-  const { name, email, password } = req.body;
+  const { name, email, password, role = 'student' } = req.body;
+  // sample
+  let inviteCode = process.env.INSTRUCTOR_SECRET;
 
   if (!name || !email || !password) {
     throw new BadRequestError('All fields are required');
+  }
+
+  if (role === 'admin') {
+    throw new unAuthorizedError('You are not authorized to register as an admin');
+  }
+
+  if (role === 'instructor') {
+    if (!inviteCode || inviteCode === process.env.INSTRUCTOR_SECRET) {
+      throw new unAuthorizedError('You are not authorized');
+    }
   }
 
   const user = await registerUser({ name, email, password });
@@ -48,7 +60,13 @@ export async function login(req, res) {
 
   const user = await loginUser(email, password);
 
-  createJwt(res, user.id);
+  const userPayload = {
+    userId: user.id,
+    role: user.role,
+    verified: user.verified,
+  };
+
+  createJwt(res, userPayload);
 
   res.status(StatusCodes.OK).json({ message: 'Login successfully' });
 }
@@ -71,7 +89,6 @@ export async function forgottenPassword(req, res) {
 export async function resetPassword(req, res) {
   const { token } = req.params;
   const { password } = req.body;
-
 
   const user = await resetPasswords(password, token);
   await sendResetPasswordSuccess(user.email);
