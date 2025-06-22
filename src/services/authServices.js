@@ -1,11 +1,19 @@
 import { BadRequestError, unAuthorizedError } from '../errors/customErrors.js';
-import { createUser, findUserByEmail, resetUserPassword } from '../models/userModel.js';
 import bcrypt from 'bcrypt';
 import { generateToken } from '../utils/generateToken.js';
 import { sendVerificationEmail } from '../mailtrap/emailjs.js';
+import { PrismaClient } from '@prisma/client';
 
-export const registerUser = async ({ name, email, password }) => {
-  const existingUser = await findUserByEmail(email);
+const prisma = new PrismaClient();
+
+export const registerUser = async ({ name, email, password ,role}) => {
+
+  const existingUser =  await prisma.user.findUnique({
+    where: { email },
+  });
+ 
+
+
 
   if (existingUser) {
     throw new BadRequestError('User already exist');
@@ -15,36 +23,113 @@ export const registerUser = async ({ name, email, password }) => {
 
   const verificationToken = generateToken();
 
-  const newUser = await createUser({
-    name,
-    email,
-    password: hashPassword,
-    verificationToken,
+   const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      password: hashPassword,
+      role,
+      verificationToken: verificationToken,
+    },
   });
 
-  await sendVerificationEmail(newUser.email, newUser.verificationToken);
+  
+
+  // await sendVerificationEmail(newUser.email, newUser.verificationToken);
 
   const safeUser = {
-    name: newUser.name,
-    email: newUser.email,
-    verificationToken: newUser.verificationToken,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    verificationToken: user.verificationToken,
   };
 
   return safeUser;
 };
 
-export const resetPasswords = async ( password, token ) => {
-  console.log(password)
+export const forgottenUserPassword = async (email) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
 
-  const hashPassword = await bcrypt.hash(password, 10);
-  console.log(hashPassword)
+  if (!user) {
+    throw new BadRequestError('Invalid credentials');
+  }
+  const resetPasswordToken = crypto.randomBytes(20).toString('hex');
 
-  const user = await resetUserPassword(hashPassword, token);
-  return user;
+  const updateUserPassword = await prisma.user.update({
+    where: { email },
+    data: {
+      resetPasswordToken,
+    },
+  });
+  return updateUserPassword;
 };
 
+
+export const verifyUserToken = async (token, email) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    throw new BadRequestError('No User Found');
+  }
+
+  if (user.verificationToken !== token) {
+    throw new BadRequestError('Invalid verificationToken');
+  }
+
+  const verifiedUser = await prisma.user.update({
+    where: { email },
+    data: {
+      verified: true,
+      verificationToken: null,
+    },
+  });
+  return verifiedUser;
+};
+
+
+export const resetUserPasswords = async (password, token) => {
+  const user = await prisma.user.findFirst({
+    where: { resetPasswordToken: token },
+  });
+
+  if (!user) {
+    throw new BadRequestError('invalid token provided');
+  }
+
+
+  const hashPassword = await bcrypt.hash(password, 10);
+  const updatePassword = await prisma.user.update({
+    where: { email: user.email },
+    data: {
+      password: hashPassword,
+      resetPasswordToken: null,
+    },
+  });
+  return updatePassword;
+};
+
+
+
+
+// export const resetPasswords = async ( password, token ) => {
+//   console.log(password)
+
+//   const hashPassword = await bcrypt.hash(password, 10);
+//   console.log(hashPassword)
+
+//   const user = await resetUserPassword(hashPassword, token);
+//   return user;
+// };
+
 export const loginUser = async ( email, password ) => {
-  const user = await findUserByEmail(email);
+ const user =  await prisma.user.findUnique({
+    where: { email },
+  });
+ 
   
 
   if (!user) {

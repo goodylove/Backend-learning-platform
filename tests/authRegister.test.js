@@ -6,17 +6,19 @@ import { BadRequestError, unAuthorizedError } from '../src/errors/customErrors.j
 jest.unstable_mockModule('../src/services/authServices.js', () => ({
   registerUser: jest.fn(),
   loginUser: jest.fn(),
-  resetPasswords: jest.fn(),
+ resetUserPasswords: jest.fn(),
+  forgottenUserPassword: jest.fn(),
+  verifyUserToken: jest.fn(),
 }));
 
 jest.unstable_mockModule('../src/utils/token.js', () => ({
   createJwt: jest.fn(),
 }));
 
-jest.unstable_mockModule('../src/models/userModel.js', () => ({
-  forgottenUserPassword: jest.fn(),
-  verifyUserToken: jest.fn(),
-}));
+// jest.unstable_mockModule('../src/models/userModel.js', () => ({
+//   forgottenUserPassword: jest.fn(),
+//   verifyUserToken: jest.fn(),
+// }));
 
 jest.unstable_mockModule('../src/mailtrap/emailjs.js', () => ({
   sendForgottenPasswordEmail: jest.fn(),
@@ -26,13 +28,15 @@ jest.unstable_mockModule('../src/mailtrap/emailjs.js', () => ({
 
 // ✅ ESM Dynamic Imports
 
-const { registerUser, loginUser ,resetPasswords} = await import('../src/services/authServices.js');
-const { register, login, verifyEmail, forgottenPassword ,resetPassword} = await import(
+const { registerUser, loginUser, resetUserPasswords, verifyUserToken, forgottenUserPassword } =
+  await import('../src/services/authServices.js');
+const { register, login, verifyEmail, forgottenPassword, resetPassword } = await import(
   '../src/controller/authController.js'
 );
 const { createJwt } = await import('../src/utils/token.js');
-const { verifyUserToken, forgottenUserPassword } = await import('../src/models/userModel.js');
-const { sendWelcomeEmail, sendForgottenPasswordEmail ,sendResetPasswordSuccess} = await import('../src/mailtrap/emailjs.js');
+const { sendWelcomeEmail, sendForgottenPasswordEmail, sendResetPasswordSuccess } = await import(
+  '../src/mailtrap/emailjs.js'
+);
 
 const response = {
   status: jest.fn().mockReturnThis(),
@@ -64,6 +68,7 @@ describe('Register controller', () => {
         name: 'fake_name',
         password: 'fake_password',
         email: 'fake_email',
+        role: 'student', // default role
       },
     };
     registerUser.mockResolvedValue(fakeUser);
@@ -217,22 +222,23 @@ describe('resetPassword  controller', () => {
   });
 
   test('Should update user password successfully', async () => {
-    const req = { 
-      body: { password: 'fake_password' }, 
-      params:{token:"fake_token"} };
+    const req = {
+      body: { password: 'fake_password' },
+      params: { token: 'fake_token' },
+    };
 
-    resetPasswords.mockResolvedValue(req.body.password,req.params.token);
+    resetUserPasswords.mockResolvedValue(req.body.password, req.params.token);
 
     sendResetPasswordSuccess.mockImplementation(async (email) => {
-      return { email};
+      return { email };
     });
 
     await resetPassword(req, response);
-    expect(resetPasswords).toHaveBeenCalledWith(req.body.password,req.params.token);
+    expect(resetUserPasswords).toHaveBeenCalledWith(req.body.password, req.params.token);
     expect(response.status).toHaveBeenCalledWith(StatusCodes.OK);
     expect(response.json).toHaveBeenCalledWith({
       message: 'Password updated successfully',
     });
   });
 });
-// 
+

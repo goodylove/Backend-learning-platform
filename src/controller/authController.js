@@ -1,34 +1,54 @@
 import { StatusCodes } from 'http-status-codes';
 import { BadRequestError, unAuthorizedError } from '../errors/customErrors.js';
-import { loginUser, registerUser, resetPasswords } from '../services/authServices.js';
+import { forgottenUserPassword, loginUser, registerUser, resetUserPasswords, verifyUserToken } from '../services/authServices.js';
 import { createJwt } from '../utils/token.js';
-import { forgottenUserPassword, verifyUserToken } from '../models/userModel.js';
 import {
   sendForgottenPasswordEmail,
   sendResetPasswordSuccess,
   sendWelcomeEmail,
 } from '../mailtrap/emailjs.js';
 
+
 export async function register(req, res) {
-  const { name, email, password, role = 'student' } = req.body;
-  // sample
   let inviteCode = process.env.INSTRUCTOR_SECRET;
+  const { name, email, password, role = 'student', instructorCode=""} = req.body;
+  // sample
+  // instructorCode=inviteCode 
 
   if (!name || !email || !password) {
     throw new BadRequestError('All fields are required');
   }
 
-  if (role === 'admin') {
-    throw new unAuthorizedError('You are not authorized to register as an admin');
-  }
+  // if (role === 'admin') {
+  //   throw new unAuthorizedError('You are not authorized to register as an admin');
+  // }
 
   if (role === 'instructor') {
     if (!inviteCode || inviteCode === process.env.INSTRUCTOR_SECRET) {
       throw new unAuthorizedError('You are not authorized');
     }
   }
+  if(instructorCode){
+    if (instructorCode !== process.env.INSTRUCTOR_SECRET) {
+      throw new unAuthorizedError('You are not authorized to register as an instructor');
+    }
 
-  const user = await registerUser({ name, email, password });
+    const instructor = await registerUser({ name, email, password, role: 'instructor' });
+
+    if (!instructor) {
+      throw new BadRequestError('Registration failed');
+    }
+    res.status(StatusCodes.CREATED).json({
+      message: 'Instructor registered successfully',
+      user: instructor,
+    });
+    return;
+
+  }
+  
+  const user = await registerUser({ name, email, password ,role});
+
+
 
   if (!user) {
     throw new BadRequestError('Registration failed');
@@ -90,7 +110,7 @@ export async function resetPassword(req, res) {
   const { token } = req.params;
   const { password } = req.body;
 
-  const user = await resetPasswords(password, token);
+  const user = await resetUserPasswords(password, token);
   await sendResetPasswordSuccess(user.email);
   res.status(StatusCodes.OK).json({ message: 'Password updated successfully' });
 }
