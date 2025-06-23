@@ -62,6 +62,26 @@ export async function getCourseById(courseId) {
       },
     },
   })
+return course;
 
+}
+
+export  async function updateCorse(courseId, updateData) {
+  const updateCourse = await prisma.course.update({
+    where: {
+      id: courseId,
+    },
+    data: updateData,
+
+  })
+return updateCourse;
+}
+
+export  async function deleteCorse(courseId) {
+  await prisma.course.delete({
+    where: {
+      id: courseId,
+    },
+    })
 
 }

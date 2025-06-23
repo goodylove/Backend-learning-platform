@@ -81,14 +81,18 @@ export async function login(req, res) {
   const user = await loginUser(email, password);
 
   const userPayload = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
     userId: user.id,
     role: user.role,
     verified: user.verified,
   };
 
+  // user: userPayload 
   createJwt(res, userPayload);
 
-  res.status(StatusCodes.OK).json({ message: 'Login successfully' });
+  res.status(StatusCodes.OK).json({ message: 'Login successfully'});
 }
 
 export async function forgottenPassword(req, res) {

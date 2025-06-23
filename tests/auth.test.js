@@ -15,10 +15,7 @@ jest.unstable_mockModule('../src/utils/token.js', () => ({
   createJwt: jest.fn(),
 }));
 
-// jest.unstable_mockModule('../src/models/userModel.js', () => ({
-//   forgottenUserPassword: jest.fn(),
-//   verifyUserToken: jest.fn(),
-// }));
+
 
 jest.unstable_mockModule('../src/mailtrap/emailjs.js', () => ({
   sendForgottenPasswordEmail: jest.fn(),
