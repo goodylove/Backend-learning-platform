@@ -2,8 +2,11 @@ import express from 'express';
 import {
   createCourseController,
   deleteCourseController,
+  enrollController,
   getAllCoursesController,
   getCourseByIdController,
+  getEnrolledCoursesController,
+  getInstructorCoursesController,
   updateCourseController,
 } from '../controller/courseController.js';
 import { authMiddleWare, authPermission } from '../middleware/authMiddleWare.js';
@@ -75,6 +78,93 @@ courseRoutes.get('/', authMiddleWare, getAllCoursesController);
 
 /**
  * @swagger
+ * /courses:
+ *   delete:
+ *     tags: [Course]
+ *     summary: Delete a course by ID by instructor only
+ *     description: This endpoint allows instructors to delete an existing course.
+ *     responses:
+ *       200:
+ *         description: Course deleted successfully
+ *       400:
+ *         description: Invalid input data
+ *       401:
+ *         description: Unauthorized access
+ *       403:
+ *         description: Forbidden access, only instructors can delete courses
+ *       404:
+ *         description: Course not found with the provided ID
+ */
+courseRoutes.delete('/', authMiddleWare, authPermission('instructor'), deleteCourseController);
+
+
+
+/** 
+ * @swagger
+ * /courses/student-enrolled-courses:
+ *   get:
+ *     tags: [Course]
+ *     summary: Get enrolled courses for a student
+ *     description: This endpoint allows students to retrieve a list of courses they are enrolled in.
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved enrolled courses
+ *       404:
+ *         description: No enrolled courses found for the student
+ *       500:
+ *         description: Internal server error
+ */
+
+
+courseRoutes.get('/student-enrolled-courses', authMiddleWare, authPermission('student'),getEnrolledCoursesController);
+/**
+ * @swagger
+ * /courses/instructor-courses:
+ *   get:
+ *     tags: [Course]
+ *     summary: Get courses created by the instructor
+ *     description: This endpoint allows instructors to retrieve a list of courses they have created.
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved instructor's courses
+ *       404:
+ *         description: No courses found for the instructor
+ *       500:
+ *         description: Internal server error
+ */
+
+courseRoutes.get('/instructor-courses', authMiddleWare, authPermission('instructor'), getInstructorCoursesController);
+ 
+
+/** 
+ *  @swagger
+ * /courses/{id}/enroll:
+ *   post:
+ *     tags: [Course]
+ *     summary: Enroll in a course by student only
+ *     description: This endpoint allows students to enroll in a specific course by its ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course to enroll in
+ *     responses:
+ *       201:
+ *         description: Successfully enrolled in the course
+ *       400:
+ *         description: Invalid input data
+ *       401:
+ *         description: Unauthorized access
+ *       403:
+ *         description: Forbidden access, only students can enroll in courses
+ */
+
+courseRoutes.post('/:id/enroll', authMiddleWare, authPermission('student'), enrollController);
+
+/**
+ * @swagger
  * /courses/{id}:
  *   get:
  *     tags: [Course]
@@ -139,25 +229,12 @@ courseRoutes.get('/:id', authMiddleWare, getCourseByIdController);
 
 courseRoutes.patch('/:id', authMiddleWare, authPermission('instructor'), updateCourseController);
 
-/**
- * @swagger
- * /courses:
- *   delete:
- *     tags: [Course]
- *     summary: Delete a course by ID by instructor only
- *     description: This endpoint allows instructors to delete an existing course.
- *     responses:
- *       200:
- *         description: Course deleted successfully
- *       400:
- *         description: Invalid input data
- *       401:
- *         description: Unauthorized access
- *       403:
- *         description: Forbidden access, only instructors can delete courses
- *       404:
- *         description: Course not found with the provided ID
- */
-courseRoutes.delete('/', authMiddleWare, authPermission('instructor'), deleteCourseController);
+
+
+
+
+
+
+
 
 export default courseRoutes;

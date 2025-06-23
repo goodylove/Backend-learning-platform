@@ -1,6 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
 import { BadRequestError, unAuthorizedError } from '../errors/customErrors.js';
-import { forgottenUserPassword, loginUser, registerUser, resetUserPasswords, verifyUserToken } from '../services/authServices.js';
+import {
+  forgottenUserPassword,
+  loginUser,
+  registerUser,
+  resetUserPasswords,
+  verifyUserToken,
+} from '../services/authServices.js';
 import { createJwt } from '../utils/token.js';
 import {
   sendForgottenPasswordEmail,
@@ -8,12 +14,11 @@ import {
   sendWelcomeEmail,
 } from '../mailtrap/emailjs.js';
 
-
 export async function register(req, res) {
   let inviteCode = process.env.INSTRUCTOR_SECRET;
-  const { name, email, password, role = 'student', instructorCode=""} = req.body;
+  const { name, email, password, role = 'student', instructorCode = '' } = req.body;
   // sample
-  // instructorCode=inviteCode 
+  // instructorCode=inviteCode
 
   if (!name || !email || !password) {
     throw new BadRequestError('All fields are required');
@@ -28,7 +33,7 @@ export async function register(req, res) {
       throw new unAuthorizedError('You are not authorized');
     }
   }
-  if(instructorCode){
+  if (instructorCode) {
     if (instructorCode !== process.env.INSTRUCTOR_SECRET) {
       throw new unAuthorizedError('You are not authorized to register as an instructor');
     }
@@ -43,12 +48,9 @@ export async function register(req, res) {
       user: instructor,
     });
     return;
-
   }
-  
-  const user = await registerUser({ name, email, password ,role});
 
-
+  const user = await registerUser({ name, email, password, role });
 
   if (!user) {
     throw new BadRequestError('Registration failed');
@@ -89,10 +91,10 @@ export async function login(req, res) {
     verified: user.verified,
   };
 
-  // user: userPayload 
+  // user: userPayload
   createJwt(res, userPayload);
 
-  res.status(StatusCodes.OK).json({ message: 'Login successfully'});
+  res.status(StatusCodes.OK).json({ message: 'Login successfully' });
 }
 
 export async function forgottenPassword(req, res) {
@@ -117,4 +119,14 @@ export async function resetPassword(req, res) {
   const user = await resetUserPasswords(password, token);
   await sendResetPasswordSuccess(user.email);
   res.status(StatusCodes.OK).json({ message: 'Password updated successfully' });
+}
+
+export async function getCurrentUser(req, res) {
+  const user = req.user;
+
+  if (!user) {
+    throw new unAuthorizedError('You are not authorized to access this resource');
+  }
+
+  res.status(StatusCodes.OK).json({user, message: 'currentUser retrieved successfully' });
 }

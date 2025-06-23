@@ -4,7 +4,7 @@ import { unAuthenticatedError, unAuthorizedError } from "../errors/customErrors.
 import { StatusCodes } from 'http-status-codes';
 
  export function authMiddleWare(req,res,next){
-    console.log("Auth Middleware called",req.cookies);
+    // console.log("Auth Middleware called",req.cookies);
     const {token} = req.cookies
 
     if(!token){

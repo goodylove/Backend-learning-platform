@@ -85,3 +85,100 @@ export  async function deleteCorse(courseId) {
     })
 
 }
+
+
+// enroll student in course
+
+export async function enrollStudentInCourse({ userId, courseId }) {
+  // Check if course exists
+
+  const course = await prisma.course.findUnique({
+    where: {
+     id:courseId,
+    },
+  });
+
+  if (!course) {
+    throw new Error('Course not found');
+  }
+
+  // Check if user is already enrolled in the course
+
+  const alreadyEnrolled = await prisma.enrollment.findUnique({
+    where: {
+      userId_courseId: {
+        userId,
+        courseId,
+      },
+    },
+  });
+
+  if (alreadyEnrolled) {
+    throw new Error('User is already enrolled in this course');
+  }
+
+  // Create enrollment record
+  return await prisma.enrollment.create({
+    data: {
+      userId,
+      courseId,
+    },
+  });
+}
+
+
+export async function getEnrolledCourses(userId) {
+  return await prisma.enrollment.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      course: {
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+}
+
+// export async function getInstructorCourses(instructorId) {
+//   return await prisma.course.findMany({
+//     where: {
+//       instructorId,
+//     },
+//     include: {
+//       instructor: {
+//         select: {
+//           id: true,
+//           name: true,
+//           email: true,
+//           role: true,
+          
+//           createdAt: true,
+//         },
+//       },
+//     },
+//   });
+// }
+
+
+export async function getInstructorCourses(instructorId) {
+  return await prisma.course.findMany({
+    where: { instructorId },
+    include: {
+      instructor: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+}
