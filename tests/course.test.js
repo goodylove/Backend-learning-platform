@@ -6,11 +6,21 @@ jest.unstable_mockModule('../src/services/courseService.js', () => ({
   getAllCourses: jest.fn(),
   getCourseById: jest.fn(),
   updateCorse: jest.fn(),
+  getInstructorCourses: jest.fn(),
+  enrollStudentInCourse: jest.fn(),
+   getEnrolledCourses: jest.fn()
 }));
 
-const { createCourse, deleteCorse, getAllCourses, getCourseById, updateCorse } = await import(
-  '../src/services/courseService'
-);
+const {
+  createCourse,
+  deleteCorse,
+  getAllCourses,
+  getCourseById,
+  updateCorse,
+  getInstructorCourses,
+  enrollStudentInCourse,
+  getEnrolledCourses,
+} = await import('../src/services/courseService');
 const { createCourseController,getAllCoursesController,getCourseByIdController,updateCourseController,deleteCourseController } = await import('../src/controller/courseController.js');
 
 const response = {
