@@ -1,11 +1,13 @@
 import express from 'express';
 import {
   forgottenPassword,
+  getCurrentUser,
   login,
   register,
   resetPassword,
   verifyEmail,
 } from '../controller/authController.js';
+import { authMiddleWare } from '../middleware/authMiddleWare.js';
 
 const router = express.Router();
 
@@ -173,5 +175,39 @@ router.post('/forgotten-password', forgottenPassword);
  */
 
 router.post('/reset-password/:token', resetPassword);
+/**
+ * @swagger
+ * /auth/current-user:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Get current authenticated user
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Returns current user details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 123e4567-e89b-12d3-a456-426614174000
+ *                 name:
+ *                   type: string
+ *                   example: Goody Love
+ *                 email:
+ *                   type: string
+ *                   example: goody@example.com
+ *                 role:
+ *                   type: string
+ *                   enum: [student, instructor, admin]
+ *                   example: instructor
+ *       401:
+ *         description: Unauthorized access
+ */
+
+router.get('/current-user', authMiddleWare, getCurrentUser);
 
 export default router;

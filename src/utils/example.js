@@ -5,4 +5,4 @@ async function test() {
   const user = await prisma.user.findMany();
   console.log(user);
 }
-test();
+// test();
