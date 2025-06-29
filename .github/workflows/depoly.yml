@@ -1,30 +1,32 @@
-name: Deploy to EC2
+name: Deploy to production environment
 
 on:
   push:
-    branches:
-      - main  
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "🚀 Logging into EC2..."
 
-      - name: Set up SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+            cd /home/ubuntu/backend-learning-platform
 
-      - name: Deploy to EC2
-        run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            cd /home/ubuntu/backend-learning-platform  # adjust this to your project folder on EC2
+            echo "📥 Pulling latest code..."
             git pull origin main
+
+            echo "📦 Installing dependencies..."
             npm install
+
+            echo "🔁 Restarting app with PM2..."
             pm2 restart all
-          EOF
+
+            echo "✅ Deployment complete!"
