@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/app.js"
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "dev": "nodemon src/app.js",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "type": "module",
@@ -13,14 +14,31 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2"
+    "express": "^4.21.2",
+    "express-async-errors": "^3.1.1",
+    "express-rate-limit": "^7.5.0",
+    "http-status-codes": "^2.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mailtrap": "^4.1.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.27.4",
+    "@babel/node": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
+    "@jest/globals": "^30.0.0",
+    "@prisma/client": "^6.9.0",
+    "babel-jest": "^30.0.0",
     "jest": "^30.0.0",
     "nodemon": "^3.1.10",
+    "prettier": "^3.5.3",
+    "prisma": "^6.9.0",
     "supertest": "^7.1.1"
   }
 }
