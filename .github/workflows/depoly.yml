@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Learning-plaform-api
 
     steps:
       - name: Deploy to server via SSH
