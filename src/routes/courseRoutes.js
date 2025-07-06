@@ -83,6 +83,16 @@ courseRoutes.get('/', authMiddleWare, getAllCoursesController);
  *     tags: [Course]
  *     summary: Delete a course by ID by instructor only
  *     description: This endpoint allows instructors to delete an existing course.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course to enroll in
+ *
+ *
+ *
  *     responses:
  *       200:
  *         description: Course deleted successfully
@@ -97,9 +107,7 @@ courseRoutes.get('/', authMiddleWare, getAllCoursesController);
  */
 courseRoutes.delete('/', authMiddleWare, authPermission('instructor'), deleteCourseController);
 
-
-
-/** 
+/**
  * @swagger
  * /courses/student-enrolled-courses:
  *   get:
@@ -115,8 +123,12 @@ courseRoutes.delete('/', authMiddleWare, authPermission('instructor'), deleteCou
  *         description: Internal server error
  */
 
-
-courseRoutes.get('/student-enrolled-courses', authMiddleWare, authPermission('student'),getEnrolledCoursesController);
+courseRoutes.get(
+  '/student-enrolled-courses',
+  authMiddleWare,
+  authPermission('student'),
+  getEnrolledCoursesController
+);
 /**
  * @swagger
  * /courses/instructor-courses:
@@ -133,10 +145,14 @@ courseRoutes.get('/student-enrolled-courses', authMiddleWare, authPermission('st
  *         description: Internal server error
  */
 
-courseRoutes.get('/instructor-courses', authMiddleWare, authPermission('instructor'), getInstructorCoursesController);
- 
+courseRoutes.get(
+  '/instructor-courses',
+  authMiddleWare,
+  authPermission('instructor'),
+  getInstructorCoursesController
+);
 
-/** 
+/**
  *  @swagger
  * /courses/{id}/enroll:
  *   post:
@@ -199,7 +215,7 @@ courseRoutes.get('/:id', authMiddleWare, getCourseByIdController);
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the course to update 
+ *         description: The ID of the course to update
  *     requestBody:
  *      required: true
  *      content:
@@ -216,8 +232,8 @@ courseRoutes.get('/:id', authMiddleWare, getCourseByIdController);
  *             description:
  *               type: string
  *               example: This course delves into advanced topics in JavaScript, including closures,
- *               
- * 
+ *
+ *
  *     responses:
  *       200:
  *         description: Successfully retrieved the course
@@ -228,13 +244,5 @@ courseRoutes.get('/:id', authMiddleWare, getCourseByIdController);
  */
 
 courseRoutes.patch('/:id', authMiddleWare, authPermission('instructor'), updateCourseController);
-
-
-
-
-
-
-
-
 
 export default courseRoutes;
