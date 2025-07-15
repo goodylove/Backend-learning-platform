@@ -11,5 +11,22 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  app:
+    build: .
+
+    container_name: learning_platform
+
+    ports:
+      - '5001:5001'
+
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: 'postgresql://myuser:mypassword@db:5432/backend_learning_platform'
+
+    volumes:
+      - .:/src
+    command: npm run dev
+
 volumes:
   pgdata:
